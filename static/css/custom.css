@@ -1,0 +1,247 @@
+/* Estilos personalizados para El Equipazo UwU */
+
+:root {
+  --primary-color: #ff5252;
+  --secondary-color: #6c757d;
+  --light-gray: #f8f9fa;
+  --medium-gray: #e9ecef;
+  --dark-gray: #343a40;
+  --border-radius: 0.25rem;
+  --card-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  --transition-speed: 0.3s;
+}
+
+body {
+  background-color: #ffffff !important;
+  color: #333333 !important;
+  font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif !important;
+}
+
+/* Navbar estilo Jira */
+.navbar {
+  background-color: white !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.navbar-brand {
+  color: var(--primary-color) !important;
+  font-weight: 600;
+}
+
+.navbar-nav .nav-link {
+  color: var(--dark-gray) !important;
+  font-weight: 500;
+}
+
+.navbar-nav .nav-link:hover, 
+.navbar-nav .nav-link.active {
+  color: var(--primary-color) !important;
+}
+
+.dropdown-menu {
+  border-radius: var(--border-radius);
+  box-shadow: var(--card-shadow);
+}
+
+/* Cards estilo Jira */
+.card {
+  border: none;
+  border-radius: var(--border-radius);
+  box-shadow: var(--card-shadow);
+  transition: transform var(--transition-speed);
+}
+
+.card:hover {
+  transform: translateY(-3px);
+}
+
+.card-header {
+  background-color: white;
+  border-bottom: 1px solid var(--medium-gray);
+  font-weight: 600;
+}
+
+/* Botones */
+.btn-primary {
+  background-color: var(--primary-color) !important;
+  border-color: var(--primary-color) !important;
+}
+
+.btn-primary:hover {
+  background-color: #ff3838 !important;
+  border-color: #ff3838 !important;
+}
+
+.btn-outline-secondary {
+  color: var(--secondary-color) !important;
+  border-color: var(--secondary-color) !important;
+}
+
+.btn-outline-secondary:hover {
+  background-color: var(--secondary-color) !important;
+  color: white !important;
+}
+
+/* Footer */
+footer {
+  background-color: var(--light-gray) !important;
+  color: var(--dark-gray) !important;
+  border-top: 1px solid var(--medium-gray);
+}
+
+footer h5 {
+  color: var(--primary-color);
+  font-weight: 600;
+}
+
+/* Iconos */
+.feature-icon, .feature-icon-small {
+  background-color: var(--primary-color) !important;
+}
+
+/* Tablero de tareas estilo Jira */
+.task-board {
+  display: flex;
+  gap: 1rem;
+  overflow-x: auto;
+  padding: 1rem 0;
+}
+
+.board-column {
+  background-color: var(--light-gray);
+  border-radius: var(--border-radius);
+  min-width: 280px;
+  max-width: 280px;
+  padding: 0.5rem;
+}
+
+.board-column-header {
+  padding: 0.5rem;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: var(--dark-gray);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.task-card {
+  background-color: white;
+  border-radius: var(--border-radius);
+  padding: 0.75rem;
+  margin-bottom: 0.5rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.task-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 3px 5px rgba(0,0,0,0.15);
+}
+
+.task-card-title {
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+}
+
+.task-badge {
+  font-size: 0.75rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 1rem;
+  margin-right: 0.25rem;
+}
+
+.priority-high {
+  background-color: #ffebe6;
+  color: #ff5630;
+}
+
+.priority-medium {
+  background-color: #fffae6;
+  color: #ff991f;
+}
+
+.priority-low {
+  background-color: #e3fcef;
+  color: #36b37e;
+}
+
+/* Barra de búsqueda estilo Jira */
+.jira-search {
+  background-color: var(--light-gray);
+  border-radius: 2rem;
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--medium-gray);
+  width: 100%;
+}
+
+.jira-search:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px rgba(255, 82, 82, 0.25);
+}
+
+/* Perfil de usuario */
+.profile-card {
+  background-color: white;
+  border-radius: var(--border-radius);
+  box-shadow: var(--card-shadow);
+  padding: 1.5rem;
+}
+
+.profile-avatar {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+/* Categorías de tareas */
+.category-badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 1rem;
+  font-size: 0.875rem;
+  margin-right: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+/* Estadísticas */
+.stats-card {
+  background-color: white;
+  border-radius: var(--border-radius);
+  box-shadow: var(--card-shadow);
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+  transition: transform var(--transition-speed);
+}
+
+.stats-card:hover {
+  transform: translateY(-3px);
+}
+
+.stats-icon {
+  color: var(--primary-color);
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+.stats-title {
+  font-size: 0.875rem;
+  color: var(--secondary-color);
+  margin-bottom: 0.25rem;
+}
+
+.stats-value {
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: var(--dark-gray);
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+  .board-column {
+    min-width: 250px;
+  }
+}

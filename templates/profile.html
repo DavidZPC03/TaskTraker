@@ -1,0 +1,282 @@
+{% extends 'base.html' %}
+
+{% block title %}Profile | Task Manager{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">User Profile</h1>
+    {% if not edit %}
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <a href="{{ url_for('edit_profile') }}" class="btn btn-sm btn-primary">
+            <i data-feather="edit" class="feather-sm"></i> Edit Profile
+        </a>
+    </div>
+    {% endif %}
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        {% if edit %}
+        <!-- Edit Profile Form -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-light">
+                <h5 class="mb-0">Edit Profile</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('edit_profile') }}">
+                    <div class="mb-3">
+                        <label for="username" class="form-label">Username</label>
+                        <input type="text" class="form-control" id="username" value="{{ user.username }}" disabled readonly>
+                        <div class="form-text">Username cannot be changed.</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email <span class="text-danger">*</span></label>
+                        <input type="email" class="form-control" id="email" name="email" value="{{ user.email }}" required>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="first_name" class="form-label">First Name</label>
+                            <input type="text" class="form-control" id="first_name" name="first_name" value="{{ user.first_name or '' }}">
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="last_name" class="form-label">Last Name</label>
+                            <input type="text" class="form-control" id="last_name" name="last_name" value="{{ user.last_name or '' }}">
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{{ url_for('profile') }}" class="btn btn-outline-secondary me-md-2">Cancel</a>
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Change Password Form -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-light">
+                <h5 class="mb-0">Change Password</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('change_password') }}">
+                    <div class="mb-3">
+                        <label for="current_password" class="form-label">Current Password <span class="text-danger">*</span></label>
+                        <input type="password" class="form-control" id="current_password" name="current_password" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="new_password" class="form-label">New Password <span class="text-danger">*</span></label>
+                        <input type="password" class="form-control" id="new_password" name="new_password" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="confirm_password" class="form-label">Confirm New Password <span class="text-danger">*</span></label>
+                        <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary">Change Password</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        {% else %}
+        <!-- Profile Information -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-light">
+                <h5 class="mb-0">Profile Information</h5>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-4 text-md-end">
+                        <strong>Username:</strong>
+                    </div>
+                    <div class="col-md-8">
+                        {{ user.username }}
+                    </div>
+                </div>
+                
+                <div class="row mb-3">
+                    <div class="col-md-4 text-md-end">
+                        <strong>Email:</strong>
+                    </div>
+                    <div class="col-md-8">
+                        {{ user.email }}
+                    </div>
+                </div>
+                
+                <div class="row mb-3">
+                    <div class="col-md-4 text-md-end">
+                        <strong>Full Name:</strong>
+                    </div>
+                    <div class="col-md-8">
+                        {{ user.full_name }}
+                    </div>
+                </div>
+                
+                <div class="row mb-3">
+                    <div class="col-md-4 text-md-end">
+                        <strong>Member Since:</strong>
+                    </div>
+                    <div class="col-md-8">
+                        {{ user.created_at.strftime('%B %d, %Y') }}
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-4 text-md-end">
+                        <strong>Last Updated:</strong>
+                    </div>
+                    <div class="col-md-8">
+                        {{ user.updated_at.strftime('%B %d, %Y') }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Account Statistics -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-light">
+                <h5 class="mb-0">Account Statistics</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <div class="card border-left-primary h-100 py-2">
+                            <div class="card-body">
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col mr-2">
+                                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                            Total Tasks</div>
+                                        <div class="h5 mb-0 font-weight-bold">{{ user.tasks|length }}</div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i data-feather="list" class="text-gray-300"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6 mb-3">
+                        <div class="card border-left-success h-100 py-2">
+                            <div class="card-body">
+                                <div class="row no-gutters align-items-center">
+                                    <div class="col mr-2">
+                                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                            Categories</div>
+                                        <div class="h5 mb-0 font-weight-bold">{{ user.categories|length }}</div>
+                                    </div>
+                                    <div class="col-auto">
+                                        <i data-feather="tag" class="text-gray-300"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    
+    <div class="col-md-4">
+        <!-- Account Actions -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-light">
+                <h5 class="mb-0">Account Actions</h5>
+            </div>
+            <div class="card-body">
+                {% if not edit %}
+                <div class="d-grid gap-2 mb-3">
+                    <a href="{{ url_for('edit_profile') }}" class="btn btn-primary">
+                        <i data-feather="edit" class="feather-sm me-2"></i> Edit Profile
+                    </a>
+                </div>
+                {% endif %}
+                
+                <div class="d-grid gap-2 mb-3">
+                    <form method="POST" action="{{ url_for('export_data') }}">
+                        <button type="submit" class="btn btn-outline-secondary w-100">
+                            <i data-feather="download" class="feather-sm me-2"></i> Export My Data
+                        </button>
+                    </form>
+                </div>
+                
+                <div class="d-grid gap-2">
+                    <a href="{{ url_for('logout') }}" class="btn btn-outline-danger">
+                        <i data-feather="log-out" class="feather-sm me-2"></i> Logout
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Privacy & Security -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-light">
+                <h5 class="mb-0">Privacy & Security</h5>
+            </div>
+            <div class="card-body">
+                <p class="card-text">
+                    Your data is securely stored and is never shared with third parties.
+                </p>
+                
+                <div class="mb-3">
+                    <h6 class="fw-bold">Password Security</h6>
+                    <p class="small text-muted">
+                        We recommend changing your password regularly and using a strong password that includes:
+                    </p>
+                    <ul class="small text-muted">
+                        <li>At least 8 characters</li>
+                        <li>Uppercase and lowercase letters</li>
+                        <li>Numbers and special characters</li>
+                    </ul>
+                </div>
+                
+                <div class="d-grid gap-2">
+                    <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#privacyModal">
+                        <i data-feather="shield" class="feather-sm me-2"></i> Privacy Policy
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Privacy Policy Modal -->
+<div class="modal fade" id="privacyModal" tabindex="-1" aria-labelledby="privacyModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="privacyModalLabel">Privacy Policy</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <h4>Task Manager Privacy Policy</h4>
+                <p>Last updated: May 2023</p>
+                
+                <h5>1. Information We Collect</h5>
+                <p>We collect information you provide directly to us, such as when you create an account, create or modify tasks, and communicate with us.</p>
+                
+                <h5>2. How We Use Information</h5>
+                <p>We use the information we collect to provide, maintain, and improve our services, such as to authenticate your login information and provide the task management functionality.</p>
+                
+                <h5>3. Data Security</h5>
+                <p>We implement appropriate security measures to protect against unauthorized access, alteration, disclosure, or destruction of your personal data.</p>
+                
+                <h5>4. Data Retention</h5>
+                <p>We retain your data for as long as your account is active or as needed to provide you with our services.</p>
+                
+                <h5>5. Your Rights</h5>
+                <p>You have the right to access, correct, or delete your personal data. You can export your data at any time from your profile page.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,423 @@
+{% extends 'base.html' %}
+
+{% block title %}Analytics | Task Manager{% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.css">
+{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Analytics</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group me-2">
+            <button type="button" id="refresh-analytics" class="btn btn-sm btn-outline-secondary">
+                <i data-feather="refresh-cw"></i> Refresh Data
+            </button>
+        </div>
+        <div class="dropdown">
+            <button class="btn btn-sm btn-outline-primary dropdown-toggle" type="button" id="exportDropdown" 
+                    data-bs-toggle="dropdown" aria-expanded="false">
+                <i data-feather="download"></i> Export
+            </button>
+            <ul class="dropdown-menu" aria-labelledby="exportDropdown">
+                <li><a class="dropdown-item" href="#" id="export-image">Save as Image</a></li>
+                <li><a class="dropdown-item" href="#" id="export-data">Export Raw Data</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<!-- Overview Cards -->
+<div class="row mb-4">
+    <div class="col-md-3 mb-4">
+        <div class="card border-left-primary h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                            Completion Rate</div>
+                        <div class="h5 mb-0 font-weight-bold">{{ (task_stats.completion_rate * 100) | round(1) }}%</div>
+                    </div>
+                    <div class="col-auto">
+                        <i data-feather="percent" class="text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3 mb-4">
+        <div class="card border-left-success h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                            Total Tasks</div>
+                        <div class="h5 mb-0 font-weight-bold">{{ task_stats.total }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i data-feather="list" class="text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3 mb-4">
+        <div class="card border-left-info h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                            Categories</div>
+                        <div class="h5 mb-0 font-weight-bold">{{ category_stats.total }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i data-feather="tag" class="text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3 mb-4">
+        <div class="card {% if task_stats.overdue > 0 %}border-left-danger{% else %}border-left-warning{% endif %} h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold {% if task_stats.overdue > 0 %}text-danger{% else %}text-warning{% endif %} text-uppercase mb-1">
+                            Overdue Tasks</div>
+                        <div class="h5 mb-0 font-weight-bold">{{ task_stats.overdue }}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i data-feather="alert-circle" class="text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts Row -->
+<div class="row mb-4">
+    <!-- Task Completion Trend -->
+    <div class="col-md-8">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold">Task Completion Trend (Last 30 Days)</h6>
+            </div>
+            <div class="card-body">
+                <div class="chart-container" style="position: relative; height: 300px;">
+                    <canvas id="completionTrendChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Task Distribution by Status -->
+    <div class="col-md-4">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold">Task Status Distribution</h6>
+            </div>
+            <div class="card-body">
+                <div class="chart-container" style="position: relative; height: 300px;">
+                    <canvas id="statusDistributionChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Additional Charts Row -->
+<div class="row mb-4">
+    <!-- Priority Distribution -->
+    <div class="col-md-6">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold">Task Priority Distribution</h6>
+            </div>
+            <div class="card-body">
+                <div class="chart-container" style="position: relative; height: 300px;">
+                    <canvas id="priorityDistributionChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Category Distribution -->
+    <div class="col-md-6">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold">Tasks by Category</h6>
+            </div>
+            <div class="card-body">
+                {% if category_stats.categories %}
+                <div class="chart-container" style="position: relative; height: 300px;">
+                    <canvas id="categoryDistributionChart"></canvas>
+                </div>
+                {% else %}
+                <div class="text-center py-5">
+                    <p>No categories found. Create categories to see this chart.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Productivity Insights -->
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold">Productivity Insights</h6>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6 mb-4">
+                <h5>Completion Rate</h5>
+                <div class="progress mb-2" style="height: 25px;">
+                    <div class="progress-bar bg-success" role="progressbar" style="width: {{ task_stats.completion_rate * 100 }}%;"
+                         aria-valuenow="{{ task_stats.completion_rate * 100 }}" aria-valuemin="0" aria-valuemax="100">
+                        {{ (task_stats.completion_rate * 100) | round(1) }}%
+                    </div>
+                </div>
+                <p class="text-muted">You have completed {{ task_stats.completed }} out of {{ task_stats.total }} tasks.</p>
+            </div>
+
+            <div class="col-md-6 mb-4">
+                <h5>Task Distribution</h5>
+                <table class="table table-sm">
+                    <thead>
+                        <tr>
+                            <th>Status</th>
+                            <th>Count</th>
+                            <th>Percentage</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for status, count in task_stats.by_status.items() %}
+                        <tr>
+                            <td>{{ status }}</td>
+                            <td>{{ count }}</td>
+                            <td>{{ ((count / task_stats.total) * 100) | round(1) if task_stats.total > 0 else 0 }}%</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-12">
+                <h5>Productivity Tips</h5>
+                <div class="alert alert-info">
+                    <i data-feather="info" class="feather-sm me-2"></i>
+                    <strong>Did you know?</strong> Breaking down large tasks into smaller subtasks can increase productivity by making progress more visible.
+                </div>
+                
+                {% if task_stats.overdue > 0 %}
+                <div class="alert alert-warning">
+                    <i data-feather="alert-triangle" class="feather-sm me-2"></i>
+                    <strong>Attention:</strong> You have {{ task_stats.overdue }} overdue tasks. Consider rescheduling or prioritizing them.
+                </div>
+                {% endif %}
+                
+                {% if task_stats.completion_rate < 0.3 %}
+                <div class="alert alert-danger">
+                    <i data-feather="trending-down" class="feather-sm me-2"></i>
+                    <strong>Low completion rate detected!</strong> Try focusing on completing smaller tasks first to build momentum.
+                </div>
+                {% elif task_stats.completion_rate > 0.7 %}
+                <div class="alert alert-success">
+                    <i data-feather="trending-up" class="feather-sm me-2"></i>
+                    <strong>Great job!</strong> You have a high completion rate. Keep up the good work!
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
+<script src="{{ url_for('static', filename='js/analytics.js') }}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Setup completion trend chart
+        const completionTrendCtx = document.getElementById('completionTrendChart').getContext('2d');
+        const completionTrendChart = new Chart(completionTrendCtx, {
+            type: 'line',
+            data: {
+                labels: {{ completion_dates|tojson }},
+                datasets: [{
+                    label: 'Tasks Completed',
+                    data: {{ completion_counts|tojson }},
+                    backgroundColor: 'rgba(78, 115, 223, 0.05)',
+                    borderColor: 'rgba(78, 115, 223, 1)',
+                    borderWidth: 2,
+                    pointBackgroundColor: 'rgba(78, 115, 223, 1)',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 1,
+                    pointRadius: 3,
+                    pointHoverRadius: 5,
+                    fill: true,
+                    tension: 0.1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            precision: 0
+                        }
+                    }
+                },
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            title: function(tooltipItems) {
+                                // Format the date for better readability
+                                const date = new Date(tooltipItems[0].label);
+                                return date.toLocaleDateString('en-US', {
+                                    year: 'numeric',
+                                    month: 'short',
+                                    day: 'numeric'
+                                });
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // Setup status distribution chart
+        const statusDistributionCtx = document.getElementById('statusDistributionChart').getContext('2d');
+        const statusDistributionChart = new Chart(statusDistributionCtx, {
+            type: 'doughnut',
+            data: {
+                labels: [{% for status, count in task_stats.by_status.items() %}'{{ status }}',{% endfor %}],
+                datasets: [{
+                    data: [{% for status, count in task_stats.by_status.items() %}{{ count }},{% endfor %}],
+                    backgroundColor: [
+                        'rgba(40, 167, 69, 0.8)',   // DONE - Green
+                        'rgba(0, 123, 255, 0.8)',   // IN_PROGRESS - Blue
+                        'rgba(23, 162, 184, 0.8)',  // REVIEW - Cyan
+                        'rgba(108, 117, 125, 0.8)', // TODO - Gray
+                        'rgba(52, 58, 64, 0.8)'     // ARCHIVED - Dark
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'right'
+                    }
+                }
+            }
+        });
+
+        // Setup priority distribution chart
+        const priorityDistributionCtx = document.getElementById('priorityDistributionChart').getContext('2d');
+        const priorityDistributionChart = new Chart(priorityDistributionCtx, {
+            type: 'bar',
+            data: {
+                labels: [{% for priority, count in task_stats.by_priority.items() %}'{{ priority }}',{% endfor %}],
+                datasets: [{
+                    label: 'Tasks by Priority',
+                    data: [{% for priority, count in task_stats.by_priority.items() %}{{ count }},{% endfor %}],
+                    backgroundColor: [
+                        'rgba(108, 117, 125, 0.8)', // LOW - Gray
+                        'rgba(23, 162, 184, 0.8)',  // MEDIUM - Cyan
+                        'rgba(255, 193, 7, 0.8)',   // HIGH - Yellow
+                        'rgba(220, 53, 69, 0.8)'    // URGENT - Red
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            precision: 0
+                        }
+                    }
+                }
+            }
+        });
+
+        // Setup category distribution chart if categories exist
+        const categoryDistributionCtx = document.getElementById('categoryDistributionChart');
+        if (categoryDistributionCtx) {
+            {% if category_stats.categories %}
+            const categoryChart = new Chart(categoryDistributionCtx.getContext('2d'), {
+                type: 'pie',
+                data: {
+                    labels: [{% for category in category_stats.categories %}'{{ category.name }}',{% endfor %}],
+                    datasets: [{
+                        data: [{% for category in category_stats.categories %}{{ category.total_tasks }},{% endfor %}],
+                        backgroundColor: [{% for category in category_stats.categories %}'{{ category.color }}',{% endfor %}],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right'
+                        }
+                    }
+                }
+            });
+            {% endif %}
+        }
+
+        // Refresh button functionality
+        document.getElementById('refresh-analytics').addEventListener('click', function() {
+            location.reload();
+        });
+
+        // Export as image functionality
+        document.getElementById('export-image').addEventListener('click', function(e) {
+            e.preventDefault();
+            alert('Export image functionality would be implemented here.');
+        });
+
+        // Export raw data functionality
+        document.getElementById('export-data').addEventListener('click', function(e) {
+            e.preventDefault();
+            // This would trigger the API endpoint to export user data
+            fetch('{{ url_for("export_data") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Data export has been scheduled. You will be notified when it is ready.');
+                } else {
+                    alert('Failed to schedule data export. Please try again.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while scheduling the data export.');
+            });
+        });
+    });
+</script>
+{% endblock %}

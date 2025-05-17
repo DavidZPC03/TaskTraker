@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block title %}Server Error | Task Manager{% endblock %}
+
+{% block content %}
+<div class="text-center py-5 my-5">
+    <div class="error mx-auto" data-text="500">
+        <h1 class="display-1 fw-bold">500</h1>
+    </div>
+    <p class="lead text-gray-800 mb-4">Internal Server Error</p>
+    <p class="text-muted mb-5">Oops! Something went wrong on our end.</p>
+    <div class="d-flex justify-content-center">
+        <div class="illustration mb-4">
+            <svg width="160" height="160" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                <line x1="12" y1="9" x2="12" y2="13"></line>
+                <line x1="12" y1="17" x2="12.01" y2="17"></line>
+            </svg>
+        </div>
+    </div>
+    <div class="text-center">
+        <p>Don't worry, our team has been notified of this issue.</p>
+        <a href="{{ url_for('index') }}" class="btn btn-primary mt-3">
+            <i data-feather="home" class="feather-sm me-2"></i>Back to Home
+        </a>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,9 @@
+email-validator
+flask
+flask-dance
+flask-login
+flask-sqlalchemy
+gunicorn
+oauthlib
+psycopg2-binary
+pyjwt

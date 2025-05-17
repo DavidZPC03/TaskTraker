@@ -1,0 +1,132 @@
+{% extends 'base.html' %}
+
+{% block title %}Gestor de Tareas - Organiza tu Vida{% endblock %}
+
+{% block content %}
+<div class="px-4 py-5 my-5 text-center">
+    <h1 class="display-5 fw-bold text-body-emphasis">Gestor de Tareas</h1>
+    <div class="col-lg-6 mx-auto">
+        <p class="lead mb-4">
+            Una potente herramienta de gestión de tareas que te ayuda a organizar tu vida, 
+            hacer seguimiento de tu productividad y alcanzar tus metas con facilidad.
+        </p>
+        <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
+            {% if current_user.is_authenticated %}
+            <a href="{{ url_for('dashboard') }}" class="btn btn-primary btn-lg px-4 gap-3">
+                Ir al Tablero
+            </a>
+            {% else %}
+            <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg px-4 gap-3">
+                Comenzar
+            </a>
+            <a href="{{ url_for('login') }}" class="btn btn-outline-secondary btn-lg px-4">
+                Iniciar Sesión
+            </a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="container py-5">
+    <div class="row g-4 py-5 row-cols-1 row-cols-lg-3">
+        <div class="feature col">
+            <div class="feature-icon d-inline-flex align-items-center justify-content-center bg-primary bg-gradient text-white fs-2 mb-3 p-2 rounded">
+                <i data-feather="check-square"></i>
+            </div>
+            <h3 class="fs-2">Organiza Tareas</h3>
+            <p>Crea, organiza y prioriza tus tareas con una interfaz intuitiva. Establece fechas de vencimiento, prioridades y categoriza tus tareas para una mejor organización.</p>
+        </div>
+        <div class="feature col">
+            <div class="feature-icon d-inline-flex align-items-center justify-content-center bg-primary bg-gradient text-white fs-2 mb-3 p-2 rounded">
+                <i data-feather="bar-chart-2"></i>
+            </div>
+            <h3 class="fs-2">Seguimiento del Progreso</h3>
+            <p>Monitorea tu productividad con análisis detallados. Observa tus tasas de finalización, distribución de tareas e identifica patrones para mejorar tu flujo de trabajo.</p>
+        </div>
+        <div class="feature col">
+            <div class="feature-icon d-inline-flex align-items-center justify-content-center bg-primary bg-gradient text-white fs-2 mb-3 p-2 rounded">
+                <i data-feather="bell"></i>
+            </div>
+            <h3 class="fs-2">Nunca Pierdas Fechas Límite</h3>
+            <p>Recibe recordatorios oportunos para tareas y fechas límite próximas. Nuestro sistema inteligente de notificaciones te ayuda a mantenerte al día con tus responsabilidades.</p>
+        </div>
+    </div>
+</div>
+
+<div class="container px-4 py-5" id="features">
+    <h2 class="pb-2 border-bottom">Características Principales</h2>
+    
+    <div class="row row-cols-1 row-cols-md-2 align-items-md-center g-5 py-5">
+        <div class="col d-flex flex-column align-items-start gap-2">
+            <h3 class="fw-bold">Todo lo que necesitas para mantenerte organizado y productivo</h3>
+            <p class="text-body-secondary">Nuestra aplicación de gestión de tareas combina el poder de los paradigmas de programación modernos para ofrecer una experiencia fluida. Con diseño orientado a objetos para la estructura, procesamiento funcional para la manipulación de datos y operaciones asíncronas para el rendimiento, obtienes lo mejor de todos los mundos.</p>
+            <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg">Regístrate ahora</a>
+        </div>
+        
+        <div class="col">
+            <div class="row row-cols-1 row-cols-sm-2 g-4">
+                <div class="col d-flex flex-column gap-2">
+                    <div class="feature-icon-small d-inline-flex align-items-center justify-content-center bg-primary bg-gradient text-white fs-4 rounded-3 p-2">
+                        <i data-feather="list"></i>
+                    </div>
+                    <h4 class="fw-semibold mb-0">Organización de Tareas</h4>
+                    <p class="text-body-secondary">Crea categorías, establece prioridades y organiza tus tareas de manera eficiente.</p>
+                </div>
+                
+                <div class="col d-flex flex-column gap-2">
+                    <div class="feature-icon-small d-inline-flex align-items-center justify-content-center bg-primary bg-gradient text-white fs-4 rounded-3 p-2">
+                        <i data-feather="filter"></i>
+                    </div>
+                    <h4 class="fw-semibold mb-0">Filtrado Inteligente</h4>
+                    <p class="text-body-secondary">Filtra y ordena fácilmente las tareas según varios criterios para enfocarte en lo que importa.</p>
+                </div>
+                
+                <div class="col d-flex flex-column gap-2">
+                    <div class="feature-icon-small d-inline-flex align-items-center justify-content-center bg-primary bg-gradient text-white fs-4 rounded-3 p-2">
+                        <i data-feather="pie-chart"></i>
+                    </div>
+                    <h4 class="fw-semibold mb-0">Análisis Detallado</h4>
+                    <p class="text-body-secondary">Visualiza tu productividad con gráficos y estadísticas completas.</p>
+                </div>
+                
+                <div class="col d-flex flex-column gap-2">
+                    <div class="feature-icon-small d-inline-flex align-items-center justify-content-center bg-primary bg-gradient text-white fs-4 rounded-3 p-2">
+                        <i data-feather="users"></i>
+                    </div>
+                    <h4 class="fw-semibold mb-0">Fácil de Usar</h4>
+                    <p class="text-body-secondary">Interfaz intuitiva diseñada para máxima productividad con mínima curva de aprendizaje.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container px-4 py-5">
+    <div class="row align-items-center g-5 py-5">
+        <div class="col-lg-6">
+            <h2 class="fw-bold lh-1 mb-3">Impulsa tu productividad hoy</h2>
+            <p class="lead">Nuestro gestor de tareas te ayuda a organizar tu trabajo y vida personal en un solo lugar. Haz seguimiento de tu progreso, cumple con los plazos y alcanza tus metas.</p>
+            <div class="d-grid gap-2 d-md-flex justify-content-md-start">
+                <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg px-4 me-md-2">Comenzar</a>
+                <a href="#features" class="btn btn-outline-secondary btn-lg px-4">Saber Más</a>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="card shadow-lg">
+                <div class="card-body">
+                    <h5 class="card-title">Vista previa del Tablero</h5>
+                    <div class="ratio ratio-16x9">
+                        <img src="https://pixabay.com/get/g07e0c2aad389eb15d126de41ca6e9211c053970d0a353b90577dcbe601e802157e32cd8d24aa0bfba2723d5982ff5c9a5f5387b67d80ed9d60c84283544c4c75_1280.jpg" class="img-fluid rounded" alt="Tablero del Gestor de Tareas">
+                    </div>
+                    <p class="card-text mt-3">
+                        Un tablero limpio e intuitivo que te ofrece una visión completa de tus tareas y productividad de un vistazo.
+                    </p>
+                    <p class="text-muted text-center mt-3">
+                        <small>Desarrollado por <strong>El Equipazo UwU</strong>: Jean, Mklewy y CarlosGZ</small>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

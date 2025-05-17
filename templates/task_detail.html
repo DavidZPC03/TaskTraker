@@ -1,0 +1,231 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if is_new %}New Task{% else %}{{ task.title }}{% endif %} | Task Manager{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">{% if is_new %}Create New Task{% else %}Edit Task{% endif %}</h1>
+    {% if not is_new %}
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <form method="POST" action="{{ url_for('toggle_task_status', task_id=task.id) }}" class="d-inline me-2">
+            <button type="submit" class="btn btn-sm {% if task.status.name == 'DONE' %}btn-outline-secondary{% else %}btn-outline-success{% endif %}">
+                <i data-feather="{% if task.status.name == 'DONE' %}refresh-cw{% else %}check{% endif %}" class="feather-sm"></i>
+                {% if task.status.name == 'DONE' %}Reopen{% else %}Complete{% endif %}
+            </button>
+        </form>
+        <button type="button" class="btn btn-sm btn-outline-danger" 
+                data-bs-toggle="modal" data-bs-target="#deleteTaskModal">
+            <i data-feather="trash-2" class="feather-sm"></i> Delete
+        </button>
+    </div>
+    {% endif %}
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card shadow-sm mb-4">
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('create_task') if is_new else url_for('edit_task', task_id=task.id) }}">
+                    <div class="mb-3">
+                        <label for="title" class="form-label">Title <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="title" name="title" required
+                               value="{{ task.title if task else '' }}">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Description</label>
+                        <textarea class="form-control" id="description" name="description" rows="4">{{ task.description if task else '' }}</textarea>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="priority" class="form-label">Priority</label>
+                            <select class="form-select" id="priority" name="priority">
+                                {% for priority in priorities %}
+                                <option value="{{ priority.name }}" 
+                                        {% if task and task.priority.name == priority.name %}selected{% endif %}>
+                                    {{ priority.name }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="status" class="form-label">Status</label>
+                            <select class="form-select" id="status" name="status">
+                                {% for status in statuses %}
+                                <option value="{{ status.name }}" 
+                                        {% if task and task.status.name == status.name %}selected{% endif %}>
+                                    {{ status.name }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="due_date" class="form-label">Due Date</label>
+                            <input type="datetime-local" class="form-control" id="due_date" name="due_date"
+                                   value="{{ task.due_date.strftime('%Y-%m-%dT%H:%M') if task and task.due_date else '' }}">
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="category_id" class="form-label">Category</label>
+                            <select class="form-select" id="category_id" name="category_id">
+                                <option value="">No Category</option>
+                                {% for category in categories %}
+                                <option value="{{ category.id }}" 
+                                        {% if task and task.category_id == category.id %}selected{% endif %}>
+                                    {{ category.name }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="parent_id" class="form-label">Parent Task</label>
+                        <select class="form-select" id="parent_id" name="parent_id">
+                            <option value="">No Parent Task</option>
+                            {% for parent_task in parent_tasks %}
+                            <option value="{{ parent_task.id }}" 
+                                    {% if task and task.parent_id == parent_task.id %}selected{% endif %}>
+                                {{ parent_task.title }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                        <div class="form-text">Link this task as a subtask of another task.</div>
+                    </div>
+                    
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{{ url_for('tasks') }}" class="btn btn-outline-secondary me-md-2">Cancel</a>
+                        <button type="submit" class="btn btn-primary">
+                            {% if is_new %}Create Task{% else %}Update Task{% endif %}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        {% if not is_new %}
+        <div class="card shadow-sm mb-4">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Task Details</h5>
+            </div>
+            <div class="card-body">
+                <dl class="row">
+                    <dt class="col-sm-5">Created</dt>
+                    <dd class="col-sm-7">{{ task.created_at.strftime('%b %d, %Y %H:%M') }}</dd>
+                    
+                    <dt class="col-sm-5">Last Updated</dt>
+                    <dd class="col-sm-7">{{ task.updated_at.strftime('%b %d, %Y %H:%M') }}</dd>
+                    
+                    {% if task.completed_at %}
+                    <dt class="col-sm-5">Completed</dt>
+                    <dd class="col-sm-7">{{ task.completed_at.strftime('%b %d, %Y %H:%M') }}</dd>
+                    {% endif %}
+                    
+                    <dt class="col-sm-5">Status</dt>
+                    <dd class="col-sm-7">
+                        {% if task.status.name == 'DONE' %}
+                        <span class="badge bg-success">{{ task.status.name }}</span>
+                        {% elif task.status.name == 'IN_PROGRESS' %}
+                        <span class="badge bg-primary">{{ task.status.name }}</span>
+                        {% elif task.status.name == 'REVIEW' %}
+                        <span class="badge bg-info text-dark">{{ task.status.name }}</span>
+                        {% else %}
+                        <span class="badge bg-secondary">{{ task.status.name }}</span>
+                        {% endif %}
+                    </dd>
+                    
+                    <dt class="col-sm-5">Priority</dt>
+                    <dd class="col-sm-7">
+                        {% if task.priority.name == 'URGENT' %}
+                        <span class="badge bg-danger">{{ task.priority.name }}</span>
+                        {% elif task.priority.name == 'HIGH' %}
+                        <span class="badge bg-warning text-dark">{{ task.priority.name }}</span>
+                        {% elif task.priority.name == 'MEDIUM' %}
+                        <span class="badge bg-info text-dark">{{ task.priority.name }}</span>
+                        {% else %}
+                        <span class="badge bg-secondary">{{ task.priority.name }}</span>
+                        {% endif %}
+                    </dd>
+                </dl>
+            </div>
+        </div>
+        
+        {% if task.subtasks %}
+        <div class="card shadow-sm mb-4">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Subtasks</h5>
+            </div>
+            <div class="card-body">
+                <ul class="list-group">
+                    {% for subtask in task.subtasks %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <a href="{{ url_for('view_task', task_id=subtask.id) }}" class="text-decoration-none">
+                                {{ subtask.title }}
+                            </a>
+                            {% if subtask.status.name == 'DONE' %}
+                            <span class="badge bg-success ms-2">Done</span>
+                            {% endif %}
+                        </div>
+                        <form method="POST" action="{{ url_for('toggle_task_status', task_id=subtask.id) }}" class="d-inline toggle-form">
+                            <button type="submit" class="btn btn-sm {% if subtask.status.name == 'DONE' %}btn-outline-secondary{% else %}btn-outline-success{% endif %}">
+                                <i data-feather="{% if subtask.status.name == 'DONE' %}refresh-cw{% else %}check{% endif %}" class="feather-sm"></i>
+                            </button>
+                        </form>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+        {% endif %}
+        
+        {% if task.parent %}
+        <div class="card shadow-sm mb-4">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Parent Task</h5>
+            </div>
+            <div class="card-body">
+                <a href="{{ url_for('view_task', task_id=task.parent.id) }}" class="text-decoration-none">
+                    <div class="d-flex align-items-center">
+                        <i data-feather="corner-up-left" class="me-2"></i>
+                        <span>{{ task.parent.title }}</span>
+                    </div>
+                </a>
+            </div>
+        </div>
+        {% endif %}
+        {% endif %}
+    </div>
+</div>
+
+{% if not is_new %}
+<!-- Delete Task Modal -->
+<div class="modal fade" id="deleteTaskModal" tabindex="-1" aria-labelledby="deleteTaskModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteTaskModalLabel">Delete Task</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete "<strong>{{ task.title }}</strong>"?</p>
+                <p class="text-danger">This action cannot be undone.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form method="POST" action="{{ url_for('delete_task', task_id=task.id) }}">
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

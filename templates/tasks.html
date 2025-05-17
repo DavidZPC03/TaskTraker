@@ -1,0 +1,220 @@
+{% extends 'base.html' %}
+
+{% block title %}Tasks | Task Manager{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Tasks</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <a href="{{ url_for('create_task') }}" class="btn btn-sm btn-primary">
+            <i data-feather="plus"></i> New Task
+        </a>
+    </div>
+</div>
+
+<!-- Filters -->
+<div class="card mb-4">
+    <div class="card-header bg-light">
+        <h5 class="mb-0">Filters</h5>
+    </div>
+    <div class="card-body">
+        <form id="filter-form" method="GET" action="{{ url_for('tasks') }}">
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <label for="status" class="form-label">Status</label>
+                    <select class="form-select" id="status" name="status">
+                        <option value="">All Statuses</option>
+                        {% for status in statuses %}
+                        <option value="{{ status.name }}" {% if current_filters.status == status.name %}selected{% endif %}>
+                            {{ status.name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="category" class="form-label">Category</label>
+                    <select class="form-select" id="category" name="category">
+                        <option value="">All Categories</option>
+                        {% for category in categories %}
+                        <option value="{{ category.id }}" {% if current_filters.category and current_filters.category|int == category.id %}selected{% endif %}>
+                            {{ category.name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="priority" class="form-label">Priority</label>
+                    <select class="form-select" id="priority" name="priority">
+                        <option value="">All Priorities</option>
+                        {% for priority in priorities %}
+                        <option value="{{ priority.name }}" {% if current_filters.priority == priority.name %}selected{% endif %}>
+                            {{ priority.name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="sort_by" class="form-label">Sort By</label>
+                    <div class="input-group">
+                        <select class="form-select" id="sort_by" name="sort_by">
+                            <option value="due_date" {% if current_filters.sort_by == 'due_date' %}selected{% endif %}>Due Date</option>
+                            <option value="priority" {% if current_filters.sort_by == 'priority' %}selected{% endif %}>Priority</option>
+                            <option value="title" {% if current_filters.sort_by == 'title' %}selected{% endif %}>Title</option>
+                            <option value="status" {% if current_filters.sort_by == 'status' %}selected{% endif %}>Status</option>
+                            <option value="created_at" {% if current_filters.sort_by == 'created_at' %}selected{% endif %}>Created</option>
+                        </select>
+                        <select class="form-select" id="sort_order" name="sort_order">
+                            <option value="asc" {% if current_filters.sort_order == 'asc' %}selected{% endif %}>Ascending</option>
+                            <option value="desc" {% if current_filters.sort_order == 'desc' %}selected{% endif %}>Descending</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="row mt-3">
+                <div class="col-12 text-end">
+                    <button type="button" class="btn btn-outline-secondary" id="clear-filters">Clear Filters</button>
+                    <button type="submit" class="btn btn-primary">Apply Filters</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Tasks List -->
+<div class="card">
+    <div class="card-header bg-light">
+        <div class="d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">All Tasks</h5>
+            <span class="badge bg-primary">{{ tasks|length }} tasks</span>
+        </div>
+    </div>
+    <div class="card-body p-0">
+        {% if tasks %}
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Title</th>
+                        <th>Category</th>
+                        <th>Priority</th>
+                        <th>Status</th>
+                        <th>Due Date</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for task in tasks %}
+                    <tr {% if task.is_overdue %}class="table-danger"{% elif task.is_due_soon %}class="table-warning"{% endif %}>
+                        <td>
+                            <a href="{{ url_for('view_task', task_id=task.id) }}" class="text-decoration-none">
+                                {{ task.title }}
+                            </a>
+                            {% if task.description %}
+                            <div class="small text-muted">{{ task.description|truncate(50) }}</div>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if task.category %}
+                            <span class="badge" style="background-color: {{ task.category.color }}">
+                                {{ task.category.name }}
+                            </span>
+                            {% else %}
+                            <span class="badge bg-secondary">None</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if task.priority.name == 'URGENT' %}
+                            <span class="badge bg-danger">{{ task.priority.name }}</span>
+                            {% elif task.priority.name == 'HIGH' %}
+                            <span class="badge bg-warning text-dark">{{ task.priority.name }}</span>
+                            {% elif task.priority.name == 'MEDIUM' %}
+                            <span class="badge bg-info text-dark">{{ task.priority.name }}</span>
+                            {% else %}
+                            <span class="badge bg-secondary">{{ task.priority.name }}</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if task.status.name == 'DONE' %}
+                            <span class="badge bg-success">{{ task.status.name }}</span>
+                            {% elif task.status.name == 'IN_PROGRESS' %}
+                            <span class="badge bg-primary">{{ task.status.name }}</span>
+                            {% elif task.status.name == 'REVIEW' %}
+                            <span class="badge bg-info text-dark">{{ task.status.name }}</span>
+                            {% else %}
+                            <span class="badge bg-secondary">{{ task.status.name }}</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if task.due_date %}
+                                {% if task.is_overdue %}
+                                <span class="text-danger">{{ task.due_date.strftime('%b %d, %Y') }}</span>
+                                {% elif task.is_due_soon %}
+                                <span class="text-warning">{{ task.due_date.strftime('%b %d, %Y') }}</span>
+                                {% else %}
+                                <span>{{ task.due_date.strftime('%b %d, %Y') }}</span>
+                                {% endif %}
+                            {% else %}
+                                <span class="text-muted">No due date</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-end">
+                            <div class="btn-group">
+                                <form method="POST" action="{{ url_for('toggle_task_status', task_id=task.id) }}" class="d-inline toggle-form">
+                                    <button type="submit" class="btn btn-sm {% if task.status.name == 'DONE' %}btn-outline-secondary{% else %}btn-outline-success{% endif %}">
+                                        <i data-feather="{% if task.status.name == 'DONE' %}refresh-cw{% else %}check{% endif %}" class="feather-sm"></i>
+                                    </button>
+                                </form>
+                                <a href="{{ url_for('edit_task', task_id=task.id) }}" class="btn btn-sm btn-outline-primary">
+                                    <i data-feather="edit" class="feather-sm"></i>
+                                </a>
+                                <button type="button" class="btn btn-sm btn-outline-danger" 
+                                        data-bs-toggle="modal" data-bs-target="#deleteModal" 
+                                        data-task-id="{{ task.id }}" data-task-title="{{ task.title }}">
+                                    <i data-feather="trash-2" class="feather-sm"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-5">
+            <i data-feather="clipboard" style="width: 48px; height: 48px;" class="text-muted mb-3"></i>
+            <h4>No tasks found</h4>
+            <p class="text-muted">No tasks match your current filters or you haven't created any tasks yet.</p>
+            <a href="{{ url_for('create_task') }}" class="btn btn-primary mt-3">
+                <i data-feather="plus"></i> Create Task
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Delete Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">Delete Task</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete "<span id="task-title"></span>"?</p>
+                <p class="text-danger">This action cannot be undone.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form id="delete-form" method="POST" action="">
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/tasks.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,181 @@
+{% extends 'base.html' %}
+
+{% block title %}Categories | Task Manager{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">{% if is_new %}Create Category{% elif category %}Edit Category{% else %}Categories{% endif %}</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        {% if not is_new and not category %}
+        <a href="{{ url_for('create_category') }}" class="btn btn-sm btn-primary">
+            <i data-feather="plus"></i> New Category
+        </a>
+        {% endif %}
+    </div>
+</div>
+
+{% if is_new or category %}
+<!-- Category Form -->
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow-sm mb-4">
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('create_category') if is_new else url_for('edit_category', category_id=category.id) }}">
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Name <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="name" name="name" required
+                               value="{{ category.name if category else '' }}">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Description</label>
+                        <textarea class="form-control" id="description" name="description" rows="3">{{ category.description if category else '' }}</textarea>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="color" class="form-label">Color</label>
+                        <div class="input-group">
+                            <input type="color" class="form-control form-control-color" id="color" name="color" 
+                                   value="{{ category.color if category else '#6c757d' }}" title="Choose category color">
+                            <span class="input-group-text">{{ category.color if category else '#6c757d' }}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{{ url_for('categories') }}" class="btn btn-outline-secondary me-md-2">Cancel</a>
+                        <button type="submit" class="btn btn-primary">
+                            {% if is_new %}Create Category{% else %}Update Category{% endif %}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% else %}
+<!-- Categories List -->
+<div class="row">
+    {% if categories %}
+    {% for category in categories %}
+    <div class="col-md-4 mb-4">
+        <div class="card h-100 shadow-sm">
+            <div class="card-header" style="background-color: {{ category.color }}; color: #fff;">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">{{ category.name }}</h5>
+                    <div class="dropdown">
+                        <button class="btn btn-sm btn-light" type="button" id="dropdownMenuButton{{ category.id }}" 
+                                data-bs-toggle="dropdown" aria-expanded="false">
+                            <i data-feather="more-vertical" class="feather-sm"></i>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton{{ category.id }}">
+                            <li>
+                                <a class="dropdown-item" href="{{ url_for('edit_category', category_id=category.id) }}">
+                                    <i data-feather="edit" class="feather-sm me-2"></i> Edit
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="{{ url_for('tasks', category=category.id) }}">
+                                    <i data-feather="list" class="feather-sm me-2"></i> View Tasks
+                                </a>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <a class="dropdown-item text-danger" href="#" 
+                                   data-bs-toggle="modal" data-bs-target="#deleteCategoryModal"
+                                   data-category-id="{{ category.id }}" data-category-name="{{ category.name }}">
+                                    <i data-feather="trash-2" class="feather-sm me-2"></i> Delete
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                {% if category.description %}
+                <p class="card-text">{{ category.description }}</p>
+                {% else %}
+                <p class="card-text text-muted">No description provided.</p>
+                {% endif %}
+                
+                <div class="d-flex justify-content-between align-items-center mt-3">
+                    <small class="text-muted">
+                        Created {{ category.created_at.strftime('%b %d, %Y') }}
+                    </small>
+                    <span class="badge bg-primary">{{ category.tasks|length }} tasks</span>
+                </div>
+            </div>
+            <div class="card-footer bg-transparent">
+                <div class="d-grid">
+                    <a href="{{ url_for('create_task', category_id=category.id) }}" class="btn btn-outline-primary btn-sm">
+                        <i data-feather="plus" class="feather-sm"></i> Add Task
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+    {% else %}
+    <div class="col-12">
+        <div class="text-center py-5">
+            <i data-feather="tag" style="width: 48px; height: 48px;" class="text-muted mb-3"></i>
+            <h4>No categories found</h4>
+            <p class="text-muted">You haven't created any categories yet.</p>
+            <a href="{{ url_for('create_category') }}" class="btn btn-primary mt-3">
+                <i data-feather="plus"></i> Create First Category
+            </a>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Delete Category Modal -->
+<div class="modal fade" id="deleteCategoryModal" tabindex="-1" aria-labelledby="deleteCategoryModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteCategoryModalLabel">Delete Category</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete "<span id="category-name"></span>"?</p>
+                <p class="text-danger">Tasks in this category will not be deleted, but they will no longer be associated with this category.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form id="delete-category-form" method="POST" action="">
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Update color input preview
+    document.addEventListener('DOMContentLoaded', function() {
+        const colorInput = document.getElementById('color');
+        if (colorInput) {
+            const colorPreview = colorInput.nextElementSibling;
+            colorInput.addEventListener('input', function() {
+                colorPreview.textContent = this.value;
+            });
+        }
+        
+        // Delete category modal
+        const deleteCategoryModal = document.getElementById('deleteCategoryModal');
+        if (deleteCategoryModal) {
+            deleteCategoryModal.addEventListener('show.bs.modal', function(event) {
+                const button = event.relatedTarget;
+                const categoryId = button.getAttribute('data-category-id');
+                const categoryName = button.getAttribute('data-category-name');
+                
+                document.getElementById('category-name').textContent = categoryName;
+                document.getElementById('delete-category-form').action = "/categories/" + categoryId + "/delete";
+            });
+        }
+    });
+</script>
+{% endblock %}

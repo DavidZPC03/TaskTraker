@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block title %}Page Not Found | Task Manager{% endblock %}
+
+{% block content %}
+<div class="text-center py-5 my-5">
+    <div class="error mx-auto" data-text="404">
+        <h1 class="display-1 fw-bold">404</h1>
+    </div>
+    <p class="lead text-gray-800 mb-4">Page Not Found</p>
+    <p class="text-muted mb-5">It looks like you found a glitch in the matrix...</p>
+    <div class="d-flex justify-content-center">
+        <div class="illustration mb-4">
+            <svg width="160" height="160" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <path d="M16 16s-1.5-2-4-2-4 2-4 2"></path>
+                <line x1="9" y1="9" x2="9.01" y2="9"></line>
+                <line x1="15" y1="9" x2="15.01" y2="9"></line>
+            </svg>
+        </div>
+    </div>
+    <a href="{{ url_for('index') }}" class="btn btn-primary">
+        <i data-feather="home" class="feather-sm me-2"></i>Back to Home
+    </a>
+</div>
+{% endblock %}
