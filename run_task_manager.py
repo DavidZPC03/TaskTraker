@@ -10,13 +10,9 @@ logger = logging.getLogger(__name__)
 def main():
     """Función principal para iniciar la aplicación."""
     port = int(os.environ.get("PORT", 5000))
-    deploy_env = os.environ.get("DEPLOY_ENV", "local")
-
-    # URL base según entorno
-    if deploy_env == "railway":
-        public_url = "https://tasktrackerpro-production.up.railway.app"
-    else:
-        public_url = f"http://localhost:{port}"
+    
+    # Usar la variable de entorno real de Railway si está definida
+    public_url = os.environ.get("RAILWAY_PUBLIC_URL", f"http://localhost:{port}")
 
     print("\n" + "="*50)
     print("TASK MANAGER - Sistema de Gestión de Tareas")
