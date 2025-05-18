@@ -14,8 +14,8 @@ RUN pip install --no-cache-dir -r requirements_export.txt
 
 COPY . .
 
+ENV FLASK_APP=main.py
+
 EXPOSE 8080
 
-CMD ["gunicorn", "wsgi:app", "--bind", "0.0.0.0:8080"]
-
-
+CMD ["sh", "-c", "gunicorn --bind 0.0.0.0:$PORT main:8080"]
