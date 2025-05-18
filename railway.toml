@@ -1,0 +1,13 @@
+[build]
+builder = "dockerfile"
+dockerfile = "Dockerfile"
+
+[deploy]
+startCommand = "gunicorn --bind 0.0.0.0:$PORT main:app"
+healthcheckPath = "/"
+healthcheckTimeout = 300
+restartPolicyType = "on-failure"
+restartPolicyMaxRetries = 5
+
+[envs]
+SESSION_SECRET = "taskmanager-secret-key"
