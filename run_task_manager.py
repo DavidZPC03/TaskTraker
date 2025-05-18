@@ -1,6 +1,6 @@
 import os
 import logging
-from app import app  # 'app' ya está definido aquí y es accesible globalmente
+from app import app
 import routes  # noqa: F401
 
 # Configurar logging
@@ -10,11 +10,18 @@ logger = logging.getLogger(__name__)
 def main():
     """Función principal para iniciar la aplicación."""
     port = int(os.environ.get("PORT", 5000))
+    deploy_env = os.environ.get("DEPLOY_ENV", "local")
+
+    # URL base según entorno
+    if deploy_env == "railway":
+        public_url = "https://tasktrackerpro-production.up.railway.app"
+    else:
+        public_url = f"http://localhost:{port}"
 
     print("\n" + "="*50)
     print("TASK MANAGER - Sistema de Gestión de Tareas")
     print("="*50)
-    print(f"\nServidor iniciado en: http://localhost:{port}")
+    print(f"\n🌐 Servidor iniciado en: {public_url}")
     print("Para acceder a la aplicación, abre tu navegador en esa dirección")
     print("\nInformación de rutas disponibles:")
 
@@ -30,12 +37,12 @@ def main():
     ]
 
     for name, route in routes_info:
-        print(f"  → {name}: http://localhost:{port}{route}")
+        print(f"  → {name}: {public_url}{route}")
 
     print("\nPresiona Ctrl+C para detener el servidor")
     print("="*50 + "\n")
 
-    app.run(debug=True, host="0.0.0.0", port=port)  # puedes cambiar host según tu necesidad
+    app.run(debug=True, host="0.0.0.0", port=port)
 
 if __name__ == "__main__":
     try:
