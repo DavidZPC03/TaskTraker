@@ -13,14 +13,15 @@ logger = logging.getLogger(__name__)
 
 def main():
     """Función principal para iniciar la aplicación."""
+    port = int(os.environ.get("PORT", 5000))  # <-- aquí está la corrección
+    
     print("\n" + "="*50)
     print("TASK MANAGER - Sistema de Gestión de Tareas")
     print("="*50)
-    print("\nServidor iniciado en: http://localhost:5000")
+    print(f"\nServidor iniciado en: http://localhost:{port}")
     print("Para acceder a la aplicación, abre tu navegador en esa dirección")
     print("\nInformación de rutas disponibles:")
     
-    # Mostrar rutas principales
     routes_info = [
         ("Página inicial", "/"),
         ("Iniciar sesión", "/login"),
@@ -33,13 +34,12 @@ def main():
     ]
     
     for name, route in routes_info:
-        print(f"  → {name}: http://localhost:5000{route}")
+        print(f"  → {name}: http://localhost:{port}{route}")
     
     print("\nPresiona Ctrl+C para detener el servidor")
     print("="*50 + "\n")
     
-    # Iniciar la aplicación
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    app.run(host="0.0.0.0", port=port, debug=True)
 
 if __name__ == "__main__":
     try:
