@@ -23,4 +23,4 @@ ENV PORT=5000
 ENV FLASK_APP=main.py
 
 # Comando para iniciar la aplicación
-CMD gunicorn --bind 0.0.0.0:$PORT main:app
+CMD gunicorn --bind 0.0.0.0:$PORT run_task_manager:app

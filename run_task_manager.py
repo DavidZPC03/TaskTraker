@@ -50,3 +50,5 @@ if __name__ == "__main__":
         logger.error(f"Error al iniciar la aplicación: {e}")
         print(f"\n⚠️ Error: {e}")
         print("Consulta el archivo de log para más detalles.")
+
+app = app  # esto expone 'app' a gunicorn
