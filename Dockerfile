@@ -16,4 +16,6 @@ COPY . .
 
 ENV FLASK_APP=main.py
 
+EXPOSE 8080
+
 CMD ["sh", "-c", "gunicorn --bind 0.0.0.0:$PORT main:app"]
