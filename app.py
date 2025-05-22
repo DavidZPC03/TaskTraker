@@ -26,7 +26,7 @@ app.secret_key = os.environ.get("SESSION_SECRET", "taskmanager-secret-key")
 app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)  # needed for url_for to generate with https
 
 # Database configuration
-app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL", "postgresql://neondb_owner:npg_8ipwCteMGoA6@ep-super-fog-a4otjfcl-pooler.us-east-1.aws.neon.tech/neondb?sslmode=require")
+app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL", "postgresql://jeangg:C9BXOt2zE7G9JrGWkKFud80ihVYxY7Oi@dpg-d0ltveidbo4c73c9ihn0-a.oregon-postgres.render.com/tt_db_pcso")
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
     'pool_pre_ping': True,
