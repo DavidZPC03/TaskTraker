@@ -1,0 +1,77 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Categories {
+  id          Int      @id @default(autoincrement())
+  name        String   @db.VarChar(64)
+  description String? 
+  color       String?  @db.VarChar(7)
+  user_id     Int
+  created_at  DateTime?
+  updated_at  DateTime?
+  is_deleted  Boolean?
+  deleted_at  DateTime?
+  user        User     @relation(fields: [user_id], references: [id])
+  tasks       Task[]
+}
+
+model Tags {
+  id          Int       @id @default(autoincrement())
+  name        String    @db.VarChar(64)
+  user_id     Int
+  created_at  DateTime?
+  updated_at  DateTime?
+  user        User      @relation(fields: [user_id], references: [id])
+  tasks       Task_tags[]
+}
+
+model Task_tags {
+  task_id     Int
+  tag_id      Int
+  task        Task @relation(fields: [task_id], references: [id])
+  tag         Tags @relation(fields: [tag_id], references: [id])
+  @@id([task_id, tag_id])
+}
+
+model Task {
+  id           Int         @id @default(autoincrement())
+  title        String      @db.VarChar(128)
+  description  String?     @db.Text
+  priority     String?     @db.VarChar(10)
+  status       String?     @db.Varchar(50)
+  due_date     DateTime?  
+  completed_at DateTime?
+  user_id      Int
+  category_id  Int?
+  parent_id    Int?
+  created_at   DateTime?
+  updated_at   DateTime?
+  is_deleted   Boolean?
+  deleted_at   DateTime?
+  user         User        @relation(fields: [user_id], references: [id])
+  category     Categories? @relation(fields: [category_id], references: [id])
+  parent       Task?       @relation("Subtasks", fields: [parent_id], references: [id])
+  subtasks     Task[]      @relation("Subtasks")
+  tags         Task_tags[]
+}
+
+model User {
+  id            Int        @id @default(autoincrement())
+  username      String     @db.VarChar(64)  @unique
+  email         String     @db.VarChar(120) @unique
+  password_hash String     @db.VarChar(256) @unique
+  first_name    String?    @db.VarChar(64)
+  last_name     String?    @db.VarChar(64)
+  created_at    DateTime?
+  updated_at    DateTime?
+  categories    Categories[]
+  tags          Tags[]
+  tasks         Task[]
+}
